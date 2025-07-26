@@ -1,0 +1,33 @@
+- name: Desplegar aplicación desde ACR usando Podman
+  hosts: azure_vm
+  become: true
+
+  vars:
+    acr_login_server: cp2registryjdap.azurecr.io
+    image_name: contenedor-jose:casopractico2
+    container_name: jose-app
+
+  vars_files:
+    - secret_vars.yml
+
+  tasks:
+    - name: Detener contenedor si hay alguno en ejecución
+      command: podman stop {{ container_name }}
+      ignore_errors: true
+
+    - name: Eliminar contenedor existente si hay alguno
+      command: podman rm {{ container_name }}
+      ignore_errors: true
+
+    - name: Inicio sesión ACR desde Podman
+      command: podman login {{ acr_login_server }} -u {{ acr_username }} -p {{ acr_password }}
+
+    - name: Descargar imagen desde ACR
+      command: podman pull {{ acr_login_server }}/{{ image_name }}
+
+    - name: Ejecutar contenedor desde imagen descargada
+      command: >
+        podman run -d
+        --name {{ container_name }}
+        -p 8080:80
+        {{ acr_login_server }}/{{ image_name }}

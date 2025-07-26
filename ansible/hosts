@@ -1,0 +1,2 @@
+[azure_vm]
+172.174.6.54 ansible_user=azureuser ansible_password=P4ssword12345! ansible_connection=ssh
